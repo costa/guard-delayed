@@ -1,5 +1,5 @@
-require 'guard'
-require 'guard/plugin'
+require 'guard/compat/plugin'
+require 'delayed/command'
 
 module Guard
   class Delayed < Plugin
@@ -22,7 +22,7 @@ module Guard
 
     def start
       run_cmd("stop")
-      UI.info "Starting up delayed_job..."
+      Compat::UI.info "Starting up delayed_job..."
       parameters  = "start"
       parameters << " --min-priority #{@options[:min_priority]}" if @options[:min_priority]
       parameters << " --max-priority #{@options[:max_priority]}" if @options[:max_priority]
@@ -37,14 +37,14 @@ module Guard
 
     # Called on Ctrl-C signal (when Guard quits)
     def stop
-      UI.info "Stopping delayed_job..."
+      Compat::UI.info "Stopping delayed_job..."
       run_cmd("stop")
     end
 
     # Called on Ctrl-Z signal
     # This method should be mainly used for "reload" (really!) actions like reloading passenger/spork/bundler/...
     def reload
-      UI.info "Restarting delayed_job..."
+      Compat::UI.info "Restarting delayed_job..."
       restart
     end
 
@@ -65,17 +65,8 @@ module Guard
       run_cmd('restart')
     end
 
-    def cmd
-      command = "script/delayed_job"
-      command = "#{@options[:root]}/script/delayed_job" if @options[:root]
-      command = "export RAILS_ENV=#{@options[:environment]}; #{command}" if @options[:environment]
-      command
-    end
-
     def run_cmd(parameters)
-      sys_response = system("#{cmd} #{parameters}")
-      raise StandardError, "Bad command: #{cmd} #{parameters}" if sys_response.nil? || !sys_response
-      sys_response
+      ::Delayed::Command.new(parameters).daemonize
     end
   end
 end
