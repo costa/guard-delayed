@@ -6,15 +6,30 @@ RSpec.describe Guard::Delayed do
 
     let(:subject) {Guard::Delayed.new({environment: 'test'})}
 
-    it "calls system with 'export RAILS_ENV=test;' call first" do
-      expect(::Delayed::Command).to receive(:new).with('stop').and_return(double daemonize: true)
-      expect(::Delayed::Command).to receive(:new).with('start').and_return(double daemonize: true)
+    it "call first" do
+      expect(::Delayed::Command).to receive(:new).with(['stop']).and_call_original
+      expect(::Delayed::Command).to receive(:new).with(['start']).and_call_original
       subject.start
     end
 
-    it "calls system with 'export RAILS_ENV=test;' after changes" do
-      expect(::Delayed::Command).to receive(:new).with('restart').and_return(double daemonize: true)
-      subject.run_on_changes([])
+    it "call last" do
+      expect(::Delayed::Command).to receive(:new).with(['stop']).and_call_original
+      subject.stop
+    end
+
+    it "on reload" do
+      expect(::Delayed::Command).to receive(:new).with(['restart']).and_call_original
+      subject.reload
+    end
+
+    it "on *all*" do
+      expect(::Delayed::Command).to receive(:new).with(['restart']).and_call_original
+      subject.run_all
+    end
+
+    it "after changes" do
+      expect(::Delayed::Command).to receive(:new).with(['restart']).and_call_original
+      subject.run_on_changes []
     end
 
   end

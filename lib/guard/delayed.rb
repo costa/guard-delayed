@@ -1,4 +1,5 @@
 require 'guard/compat/plugin'
+require 'delayed_job'
 require 'delayed/command'
 require 'rails'  # XXX https://github.com/collectiveidea/delayed_job/issues/515
 
@@ -67,7 +68,7 @@ module Guard
     end
 
     def run_cmd(parameters)
-      ::Delayed::Command.new(parameters).daemonize
+      ::Delayed::Command.new(parameters.split ' ').daemonize
     end
   end
 end

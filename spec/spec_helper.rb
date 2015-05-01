@@ -35,6 +35,7 @@ RSpec.configure do |config|
   Kernel.srand config.seed
 
   config.before(:each) do
+    allow_any_instance_of(Delayed::Command).to receive(:daemonize)
     allow(Guard::Compat::UI).to receive(:notify)
     allow(Guard::Compat::UI).to receive(:info)
     @fixture_path = Pathname.new(File.expand_path('../fixtures/', __FILE__))
