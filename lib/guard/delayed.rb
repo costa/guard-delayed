@@ -1,5 +1,6 @@
 require 'guard/compat/plugin'
 require 'delayed/command'
+require 'rails'  # XXX https://github.com/collectiveidea/delayed_job/issues/515
 
 module Guard
   class Delayed < Plugin
